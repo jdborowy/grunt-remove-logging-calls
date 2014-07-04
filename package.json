@@ -1,6 +1,6 @@
 {
     "name" : "grunt-remove-logging-calls",
-    "description" : "Grunt task to remove console logging statements",
+    "description" : "Grunt task to remove all or any parts of logging statements",
     "version" : "0.0.1",
     "author" : {
         "name" : "Jean-Daniel Borowy",
@@ -30,12 +30,11 @@
         "test" : "grunt test"
     },
     "dependencies": {
-        "esprima": ">= 2.0.0"
+        "esprima": ">= 1.2.0"
     },
     "devDependencies" : {
         "grunt" : "~0.4.2",
-        "grunt-contrib-jshint": "~0.7.2",
-        "grunt-contrib-nodeunit": "~0.2.2"
+        "grunt-contrib-jshint": "~0.7.2"
     },
     "keywords" : [
                   "gruntplugin",

@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
     'use strict';
 
-    grunt.registerMultiTask("removelogging", "Remove console logging", function() {
+    grunt.registerMultiTask("removeLoggingCalls", "Remove all or any parts of logging statements", function() {
         var removeLoggingCalls = require("./lib/removeloggingcalls").init(grunt);;
 
         this.files.forEach(function(file) {
