@@ -63,7 +63,7 @@ exports.init = function(grunt) {
             }
         }
         segmentsToBlank.sort(function(a, b) {
-            return a[0] >= b[0];
+            return a[0] - b[0];
         });
         removeNestedSegments(segmentsToBlank);
         return segmentsToBlank;
