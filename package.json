@@ -1,7 +1,7 @@
 {
     "name" : "grunt-remove-logging-calls",
     "description" : "Grunt task to remove all or any parts of logging statements",
-    "version" : "0.0.1",
+    "version" : "0.0.2",
     "author" : {
         "name" : "Jean-Daniel Borowy",
         "email" : "jeandaniel.borowy@gmail.com"
@@ -21,8 +21,6 @@
         "type": "MIT",
         "url": "https://github.com/jdborowy/grunt-remove-logging-calls/blob/master/LICENSE"
     }],
-    "main" : "grunt.js",
-    "bin" : "bin/grunt-remove-logging",
     "engines" : {
         "node" : ">= 0.8.0"
     },
