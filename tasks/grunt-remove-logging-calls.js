@@ -16,7 +16,7 @@ module.exports = function(grunt) {
             }).map(function(filepath) {
                 var sourceCode = grunt.file.read(filepath);
                 var result = removeLoggingCalls.process(sourceCode);
-                grunt.file.write(file.dest, result);
+                grunt.file.write(filepath, result);
             });
         });
     });
