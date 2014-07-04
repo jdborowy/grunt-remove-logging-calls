@@ -14,9 +14,9 @@ module.exports = function(grunt) {
                     return true;
                 }
             }).map(function(filepath) {
-                var source = grunt.file.read(filepath);
-                var result = 
-                    grunt.file.write(file.dest, contents);
+                var sourceCode = grunt.file.read(filepath);
+                var result = removeLoggingCalls.process(sourceCode);
+                grunt.file.write(file.dest, result);
             });
         });
     });
