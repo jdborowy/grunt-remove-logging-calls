@@ -57,11 +57,14 @@ exports.init = function(grunt) {
                         nodeExpression.callee.object.object.name === 'window'
                 )) {
                     if (methods.indexOf(nodeExpression.callee.property.name) > -1) {
-                        segmentsToBlank.push(nodeExpression.range);   
+                        segmentsToBlank.push(nodeExpression.range);
                     }
                 }
             }
         }
+        segmentsToBlank.sort(function(a, b) {
+            return a[0] >= b[0];
+        });
         removeNestedSegments(segmentsToBlank);
         return segmentsToBlank;
     };
