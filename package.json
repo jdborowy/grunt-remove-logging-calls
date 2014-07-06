@@ -1,6 +1,6 @@
 {
     "name" : "grunt-remove-logging-calls",
-    "description" : "Grunt task to remove all or any parts of logging statements",
+    "description" : "Grunt task to remove or replace all or any parts of logging statements from javascript code",
     "version" : "0.1.0",
     "author" : {
         "name" : "Jean-Daniel Borowy",
