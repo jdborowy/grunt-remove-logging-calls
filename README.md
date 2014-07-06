@@ -3,7 +3,7 @@ grunt-remove-logging-calls
 
 ## About
 
-This plugin removes all or any part of console logging statements from javascript code.
+This plugin removes/replaces all or any part of console logging statements from javascript code.
 
 
 ## Getting Started
@@ -28,11 +28,18 @@ grunt.initConfig({
 	// ...
 
 	removeLoggingCalls: {
- 		files: ['src/**/*.js'], // the files inside which you want to remove the console statements
+		// the files inside which you want to remove the console statements
+ 		files: ['src/**/*.js'],
  		options: {
-			methods: ['log', 'info', 'assert'], // removes console.log(...), console.info(...) and console.assert(...)
-			strategy: function(consoleStatement) { // removing strategy
-				return '/* ' + consoleStatement + '*/'; // comments console calls statements
+ 			// removes/replaces console.log(...), console.info(...) and console.assert(...)
+			methods: ['log', 'info', 'assert'], 
+			
+			// replacement strategy
+			strategy: function(consoleStatement) {
+				// comments console calls statements
+				return '/* ' + consoleStatement + '*/';
+
+				// return ''; // to remove 
 			}
 		}
 	}
