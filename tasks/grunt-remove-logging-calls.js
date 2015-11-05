@@ -11,7 +11,7 @@ module.exports = function(grunt) {
                     grunt.log.warn('Source file "' + filepath + '" not found.');
                 } else {
                     var sourceCode = grunt.file.read(filepath);
-                    var result = removeLoggingCalls.process(sourceCode, options.methods, options.strategy);
+                    var result = removeLoggingCalls.process(sourceCode, options.methods);
                     grunt.file.write(filepath, result);
                 }
             });

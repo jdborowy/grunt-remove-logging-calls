@@ -110,6 +110,22 @@ exports.init = function(grunt) {
 
     /**
      * 
+     * @param {String} sourceCode the javascript source
+     * @param {Number} semicolonCode the ascii code of semicolon character
+     * @param {Number} start the start index
+     * @param {Number} end the end index
+     */
+    var jumpAfterSemicolon = function(sourceCode, semicolonCode, start, end) {
+	for (var i = start; i < end; ++i) {
+	    if (sourceCode.charCodeAt(i) ===  semicolonCode) {
+		return i + 1;
+	    }
+	}
+	return start;
+    };
+
+    /**
+     * 
      * @param {String} sourceCode the javascript source code to be cleaned
      * @param {String[]} methodNames the methods to catch on the console object for blanking
      * @param {function} strategy the strategy to replace console calls
@@ -122,7 +138,7 @@ exports.init = function(grunt) {
         if (strategy === undefined) {
             // default strategy to replace console statements
             strategy = function(loggingStatement) {
-                return 'null /* ' + loggingStatement + ' */';
+                return '/* ' + loggingStatement + ' */';
             };
         }
 
@@ -131,8 +147,11 @@ exports.init = function(grunt) {
         var segments = getSegmentsToReplace(nodes, methodNames);
         var result = '';
         var previousSegment = [0, 0];
+	var semicolonCharCode = ';'.charCodeAt(0);
         for (var i = 0, ii = segments.length; i < ii; ++i) {
             result += sourceCode.slice(previousSegment[1], segments[i][0]);
+	    segments[i][1] = jumpAfterSemicolon(sourceCode, semicolonCharCode,
+						segments[i][1], i + 1 < ii ? segments[i + 1][0] : sourceCode.length);
             result += strategy(sourceCode.slice(segments[i][0], segments[i][1]));
             previousSegment = segments[i];
         }
