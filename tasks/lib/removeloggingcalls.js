@@ -108,6 +108,11 @@ exports.init = function(grunt) {
         }
     };
 
+
+    var spaceCode = ' '.charCodeAt(0);
+    var tabCode = '\t'.charCodeAt(0);
+    var semicolonCode = ';'.charCodeAt(0);
+
     /**
      * 
      * @param {String} sourceCode the javascript source
@@ -115,10 +120,17 @@ exports.init = function(grunt) {
      * @param {Number} start the start index
      * @param {Number} end the end index
      */
-    var jumpAfterSemicolon = function(sourceCode, semicolonCode, start, end) {
+    var jumpAfterSemicolon = function(sourceCode, start, end) {
+	
 	for (var i = start; i < end; ++i) {
-	    if (sourceCode.charCodeAt(i) ===  semicolonCode) {
+	    switch (sourceCode.charCodeAt(i)) {
+	    case semicolonCode:
 		return i + 1;
+	    case spaceCode:
+	    case tabCode:
+		continue;
+	    default:
+		return start;
 	    }
 	}
 	return start;
@@ -131,27 +143,38 @@ exports.init = function(grunt) {
      * @param {function} strategy the strategy to replace console calls
      * @return {}
      */
-    var process = function(sourceCode, methodNames, strategy) {
+    var process = function(sourceCode, methodNames, strategy, removeSemicolonIfPossible) {
         // default console calls to replace
         methodNames = methodNames === undefined ? ['log', 'info', 'assert'] : methodNames;
         methodNames = Array.isArray(methodNames) ? methodNames : [methodNames];
-        if (strategy === undefined) {
+        // by default do not remove the semicolon
+	removeSemicolonIfPossible = removeSemicolonIfPossible === undefined ? false : true;
+	if (strategy === undefined) {
             // default strategy to replace console statements
-            strategy = function(loggingStatement) {
-                return '/* ' + loggingStatement + ' */';
-            };
+	    if (removeSemicolonIfPossible) {
+		strategy = function(loggingStatement) {
+                    return '/* ' + loggingStatement + ' */';
+		};
+	    } else {
+		strategy = function(loggingStatement) {
+                    return 'null /* ' + loggingStatement + ' */';
+		};
+	    }
+	    
         }
-
+	
         var syntaxTree = esprima.parse(sourceCode, { range: true });
         var nodes = breadthFirstSearch(syntaxTree);
         var segments = getSegmentsToReplace(nodes, methodNames);
         var result = '';
         var previousSegment = [0, 0];
-	var semicolonCharCode = ';'.charCodeAt(0);
-        for (var i = 0, ii = segments.length; i < ii; ++i) {
+	for (var i = 0, ii = segments.length; i < ii; ++i) {
             result += sourceCode.slice(previousSegment[1], segments[i][0]);
-	    segments[i][1] = jumpAfterSemicolon(sourceCode, semicolonCharCode,
-						segments[i][1], i + 1 < ii ? segments[i + 1][0] : sourceCode.length);
+	    if (removeSemicolonIfPossible) {
+		segments[i][1] = jumpAfterSemicolon(sourceCode, segments[i][1],
+						    i + 1 < ii ? segments[i + 1][0] : sourceCode.length);
+	    }
+	    
             result += strategy(sourceCode.slice(segments[i][0], segments[i][1]));
             previousSegment = segments[i];
         }

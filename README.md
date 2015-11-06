@@ -43,7 +43,12 @@ grunt.initConfig({
 				return '/* ' + consoleStatement + '*/';
 
 				// return ''; // to remove 
-			}
+			},
+			
+			// when the logging statement is ended by a semicolon ';'
+			// include it in the 'consoleStatement' given to the strategy
+			removeSemicolonIfPossible: true
+		
 		}
 	}
 
