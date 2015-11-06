@@ -55,3 +55,5 @@ grunt.initConfig({
     // ...
 });
 ```
+
+If you want to integrate this with grunt usemin, here the [blog post](http://grunt-tasks.com/grunt-remove-logging-calls/ "grunt remove logging calls") explaining it.
