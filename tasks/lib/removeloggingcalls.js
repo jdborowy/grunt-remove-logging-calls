@@ -18,7 +18,7 @@ exports.init = function(grunt) {
      */
     var breadthFirstSearch = function(rootNode) {
         // queue to compute de breadth first search
-        var queue = [rootNode]; 
+        var queue = [rootNode];
         var nodes = [rootNode];
 
         while (queue.length !== 0) {
@@ -26,7 +26,7 @@ exports.init = function(grunt) {
             var currentNode = queue.shift();
             for (var property in currentNode) {
                 // compute only non-inherited properties
-                if (currentNode.hasOwnProperty(property)) { 
+                if (currentNode.hasOwnProperty(property)) {
                     if (Array.isArray(currentNode[property])) {
                         var nodeArray = currentNode[property];
                         for (var i = 0, ii = nodeArray.length; i < ii; ++i) {
@@ -37,11 +37,11 @@ exports.init = function(grunt) {
                             }
                         }
                     } else
-                        // enqueue only if it is a Node instance
-                        if (currentNode[property] instanceof rootNode.constructor) { 
-                            queue.push(currentNode[property]);
-                            nodes.push(currentNode[property]);
-                        }
+                    // enqueue only if it is a Node instance
+                    if (currentNode[property] instanceof rootNode.constructor) {
+                        queue.push(currentNode[property]);
+                        nodes.push(currentNode[property]);
+                    }
                 }
             }
         }
@@ -49,30 +49,54 @@ exports.init = function(grunt) {
     };
 
     /**
+     * Recursive function to get the namespace and the method
+     * @param {Node} obj expression
+     * @param {String} stack variable to store hierarchy
+     * @returns {string}
+     */
+    var getNamespace = function(obj, stack) {
+        if(obj.object.object) {
+            return getNamespace(obj.object, stack) + '.' + obj.property.name
+        } else if(obj.object){
+            return obj.object.name + "." + obj.property.name;
+        }
+    };
+
+    /**
+     * returns the namespace and the method name as an object
+     * @param {Node} obj expression
+     * @returns {{namespace: string, method: string}}
+     */
+    var getNamespaceAndMethod = function(obj) {
+        var namespace = getNamespace(obj, '');
+
+        return {
+            namespace : namespace.substring(0, namespace.lastIndexOf(".")),
+            method: namespace.substr(namespace.lastIndexOf(".") + 1)
+        }
+    };
+
+    /**
      * Identify nodes that relate to console statements
      * @param {Node[]} nodes the list of nodes
-     * @param {Node[]} methods the methods to identify
-     * @param {String[]} methods the properties (functions) to catch for blanking
+     * @param {String[]} namespaces namespaces to identify
+     * @param {String[]} methods the methods to identify
+     * @return {String[]} methods the properties (functions) to catch for blanking
      */
-    var getSegmentsToReplace = function(nodes, methods) {
+    var getSegmentsToReplace = function(nodes, namespaces, methods) {
         var segmentsToBlank = [];
 
         for (var i = 0, ii = nodes.length; i < ii; ++i) {
             // checks if the statement is a CallExpression
             if (nodes[i].type === 'CallExpression' &&
-                    nodes[i].callee.type === 'MemberExpression') {
+                nodes[i].callee.type === 'MemberExpression') {
                 var nodeExpression = nodes[i];
-                // checks if the called function is a property of console or window.console
-                if (nodeExpression.callee.object.name === 'console' || (
-                        nodeExpression.callee.object.property !== undefined &&
-                        nodeExpression.callee.object.object !== undefined &&
-                        nodeExpression.callee.object.property.name === 'console' &&
-                        nodeExpression.callee.object.object.name === 'window'
-                )) {
-                    // push the node if the current function is within the methods array
-                    if (methods.indexOf(nodeExpression.callee.property.name) > -1) {
-                        segmentsToBlank.push(nodeExpression.range);
-                    }
+                // checks if the called function is a property of namespace
+                var namespaceMethod = getNamespaceAndMethod(nodeExpression.callee);
+                // push the node if the current function is within the namespaces and methods array
+                if (namespaces.indexOf(namespaceMethod.namespace)!==-1 &&
+                    methods.indexOf(namespaceMethod.method)!==-1) {
+                    segmentsToBlank.push(nodeExpression.range);
                 }
             }
         }
@@ -87,7 +111,7 @@ exports.init = function(grunt) {
 
     /**
      * Remove segments that are nested in other
-     * @param {Node[]} node the console calls nodes
+     * @param {Node[]} segments the console calls nodes
      */
     var removeNestedSegments = function(segments) {
         var previousSegment = [-1, -1];
@@ -96,7 +120,7 @@ exports.init = function(grunt) {
         var i, ii;
         for (i = 0, ii = segments.length; i < ii; ++i) {
             if (!(previousSegment[0] <= segments[i][0] &&
-                    previousSegment[1] >= segments[i][1])) {
+                previousSegment[1] >= segments[i][1])) {
                 cleanedSegmentArray.push(segments[i]);
             }
             previousSegment = segments[i];
@@ -114,67 +138,70 @@ exports.init = function(grunt) {
     var semicolonCode = ';'.charCodeAt(0);
 
     /**
-     * 
+     *
      * @param {String} sourceCode the javascript source
-     * @param {Number} semicolonCode the ascii code of semicolon character
      * @param {Number} start the start index
      * @param {Number} end the end index
      */
     var jumpAfterSemicolon = function(sourceCode, start, end) {
-	
-	for (var i = start; i < end; ++i) {
-	    switch (sourceCode.charCodeAt(i)) {
-	    case semicolonCode:
-		return i + 1;
-	    case spaceCode:
-	    case tabCode:
-		continue;
-	    default:
-		return start;
-	    }
-	}
-	return start;
+
+        for (var i = start; i < end; ++i) {
+            switch (sourceCode.charCodeAt(i)) {
+                case semicolonCode:
+                    return i + 1;
+                case spaceCode:
+                case tabCode:
+                    continue;
+                default:
+                    return start;
+            }
+        }
+        return start;
     };
 
     /**
-     * 
+     *
      * @param {String} sourceCode the javascript source code to be cleaned
-     * @param {String[]} methodNames the methods to catch on the console object for blanking
+     * @param {String} namespaces the namespaces to catch the methods for blanking
+     * @param {String[]} methodNames the methods to catch on the namespaces for blanking
      * @param {function} strategy the strategy to replace console calls
-     * @return {}
+     * @param {Boolean} removeSemicolonIfPossible
+     * @return {Object}
      */
-    var process = function(sourceCode, methodNames, strategy, removeSemicolonIfPossible) {
+    var process = function(sourceCode, namespaces, methodNames, strategy, removeSemicolonIfPossible) {
+        // default namespace to replace
+        namespaces = namespaces === undefined ? ['console', 'window.console'] : namespaces;
         // default console calls to replace
         methodNames = methodNames === undefined ? ['log', 'info', 'assert'] : methodNames;
         methodNames = Array.isArray(methodNames) ? methodNames : [methodNames];
         // by default do not remove the semicolon
-	removeSemicolonIfPossible = removeSemicolonIfPossible === undefined ? false : true;
-	if (strategy === undefined) {
+        removeSemicolonIfPossible = removeSemicolonIfPossible !== undefined;
+        if (strategy === undefined) {
             // default strategy to replace console statements
-	    if (removeSemicolonIfPossible) {
-		strategy = function(loggingStatement) {
+            if (removeSemicolonIfPossible) {
+                strategy = function(loggingStatement) {
                     return '/* ' + loggingStatement + ' */';
-		};
-	    } else {
-		strategy = function(loggingStatement) {
+                };
+            } else {
+                strategy = function(loggingStatement) {
                     return 'null /* ' + loggingStatement + ' */';
-		};
-	    }
-	    
+                };
+            }
+
         }
-	
+
         var syntaxTree = esprima.parse(sourceCode, { range: true });
         var nodes = breadthFirstSearch(syntaxTree);
-        var segments = getSegmentsToReplace(nodes, methodNames);
+        var segments = getSegmentsToReplace(nodes, namespaces, methodNames);
         var result = '';
         var previousSegment = [0, 0];
-	for (var i = 0, ii = segments.length; i < ii; ++i) {
+        for (var i = 0, ii = segments.length; i < ii; ++i) {
             result += sourceCode.slice(previousSegment[1], segments[i][0]);
-	    if (removeSemicolonIfPossible) {
-		segments[i][1] = jumpAfterSemicolon(sourceCode, segments[i][1],
-						    i + 1 < ii ? segments[i + 1][0] : sourceCode.length);
-	    }
-	    
+            if (removeSemicolonIfPossible) {
+                segments[i][1] = jumpAfterSemicolon(sourceCode, segments[i][1],
+                        i + 1 < ii ? segments[i + 1][0] : sourceCode.length);
+            }
+
             result += strategy(sourceCode.slice(segments[i][0], segments[i][1]));
             previousSegment = segments[i];
         }
