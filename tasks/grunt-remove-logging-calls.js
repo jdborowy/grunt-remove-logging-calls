@@ -10,6 +10,9 @@ module.exports = function(grunt) {
                 if (!grunt.file.exists(filepath)) {
                     grunt.log.warn('Source file "' + filepath + '" not found.');
                 } else {
+					if(options.logFileNames) {
+						grunt.log.warn('Reading file: "' + filepath);
+					}
                     var sourceCode = grunt.file.read(filepath);
                     var result = removeLoggingCalls.process(sourceCode, options.methods, options.strategy, options.removeSemicolonIfPossible);
                     grunt.file.write(filepath, result);
