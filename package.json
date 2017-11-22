@@ -1,47 +1,51 @@
 {
-    "name" : "grunt-remove-logging-calls",
-    "description" : "Grunt task to remove or replace all or any parts of logging statements from javascript code",
-    "version" : "0.1.0",
-    "author" : {
-        "name" : "Jean-Daniel Borowy",
-        "email" : "jeandaniel.borowy@gmail.com"
-    },
-    "maintainers": [{
-        "name" : "Jean-Daniel Borowy",
-        "email" : "jeandaniel.borowy@gmail.com"
-    }],
-    "repository" : {
-        "type" : "git",
-        "url": "git://github.com/jdborowy/grunt-remove-logging-calls.git"
-    },
-    "bugs" : {
-        "url" : "https://github.com/jdborowy/grunt-remove-logging-calls/issues"
-    },
-    "licenses": [{
-        "type": "MIT",
-        "url": "https://github.com/jdborowy/grunt-remove-logging-calls/blob/master/LICENSE"
-    }],
-    "engines" : {
-        "node" : ">= 0.8.0"
-    },
-    "scripts" : {
-        "test" : "grunt test"
-    },
-    "dependencies": {
-        "esprima": ">= 1.2.0"
-    },
-    "devDependencies" : {
-        "grunt" : "~0.4.2",
-        "grunt-contrib-jshint": "~0.7.2"
-    },
-    "keywords" : [
-                  "gruntplugin",
-                  "remove",
-                  "console",
-                  "log",
-                  "assert",
-                  "statements",
-                  "calls",
-                  "debug"
-                  ]
+  "name": "grunt-remove-logging-calls",
+  "description": "Grunt task to remove or replace all or any parts of logging statements from javascript code",
+  "version": "0.1.2",
+  "author": {
+    "name": "Jean-Daniel Borowy",
+    "email": "jeandaniel.borowy@gmail.com"
+  },
+  "maintainers": [
+    {
+      "name": "Jean-Daniel Borowy",
+      "email": "jeandaniel.borowy@gmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jdborowy/grunt-remove-logging-calls.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jdborowy/grunt-remove-logging-calls/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/jdborowy/grunt-remove-logging-calls/blob/master/LICENSE"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {
+    "esprima": ">= 1.2.0"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-jshint": "~0.7.2"
+  },
+  "keywords": [
+    "gruntplugin",
+    "remove",
+    "console",
+    "log",
+    "assert",
+    "statements",
+    "calls",
+    "debug"
+  ]
 }

@@ -43,10 +43,17 @@ grunt.initConfig({
 				return '/* ' + consoleStatement + '*/';
 
 				// return ''; // to remove 
-			}
+			},
+			
+			// when the logging statement is ended by a semicolon ';'
+			// include it in the 'consoleStatement' given to the strategy
+			removeSemicolonIfPossible: true
+		
 		}
 	}
 
     // ...
 });
 ```
+
+If you want to integrate this with grunt usemin, here the [blog post](http://grunt-tasks.com/grunt-remove-logging-calls/ "grunt remove logging calls") explaining it.
