@@ -34,6 +34,8 @@ grunt.initConfig({
 		// the files inside which you want to remove the console statements
  		files: ['src/**/*.js'],
  		options: {
+ 		    // an array of namespaces to remove
+ 		    namespaces: ['console', 'window.console'],
  			// an array of method names to remove
 			methods: ['log', 'info', 'assert'], 
 			
